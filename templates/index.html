@@ -1,0 +1,180 @@
+<html>
+
+<head>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="shortcut icon" href="/static/icon.png" />
+    <style>
+        #InputBar {
+            font-size: larger;
+            margin: auto;
+        }
+
+        #InputBar>tbody>tr>td {
+            text-align: center;
+        }
+
+        #InputBar>tbody>tr>td>input {
+            width: 300px;
+        }
+
+        #submit {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="/static/index.js"></script>
+    <script>
+        function getbyid(id_) {
+            return document.getElementById(id_);
+        }
+        function submit() {
+            var query = "";
+            var initial = getbyid("initial");
+            if (initial.value) {
+                query += `initial:\n    ${initial.value}\n`;
+            };
+            var name = getbyid("name");
+            if (name.value) {
+                query += `name:\n    ${name.value}\n`
+            };
+            var gender = undefined;
+            document.getElementsByName("gender").forEach((element) => {
+                if (element.checked == true) gender = element.value;
+            })
+            if (gender != undefined) {
+                query += `gender:\n    ${gender}\n`;
+            };
+            var CCF_level = getbyid("CCF_level");
+            if (CCF_level.value) {
+                query += `CCF_level:\n    ${CCF_level.value}\n`;
+            }
+            var enroll_middle = getbyid("enroll_middle");
+            if (enroll_middle.value) query += `enroll_middle:\n    ${enroll_middle.value}\n`;
+            var records = getbyid("records").value;
+            if (records) {
+                query += "records:\n";
+                records.split(new RegExp("\n", "g")).forEach(element => {
+                    query += `    ${process(element)}\n`;
+                })
+            }
+            $.ajax({
+                url: "/parser_api/",
+                method: "POST",
+                data: {
+                    "code": query
+                },
+                success: function (status) {
+                    if (status.code == '400') {
+                        alert(status.data);
+                    }
+                    var res = getbyid("input_");
+                    res.innerHTML = "";
+                    status.data.forEach(element => {
+                        res.appendChild(get_oier_line(element));
+                    })
+                    console.log(res);
+                }
+            })
+        }
+        function get_oier_line(data) {
+            var res = document.createElement("tr");
+            data.forEach(element => {
+                var tmp = document.createElement("td");
+                tmp.innerHTML = element;
+                res.appendChild(tmp);
+            })
+            res.childNodes[0].onclick = function () { window.open(`https://oier.baoshuo.dev/oier/${data[0]}`); };
+            return res;
+        }
+    </script>
+    <style>
+        .width_fixed_link {
+            position: relative;
+            display: inline-table;
+            width: 10%;
+        }
+
+        #res {
+            border-collapse: collapse;
+            width: 80%;
+            margin: auto;
+        }
+
+        #res th, td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        #res tr:nth-child(even) {
+            background-color: #f2f2f2
+        }
+        #res tr td:first-child {
+            color: blue;
+            font-weight: bold;
+            text-decoration-line: underline;
+        }
+
+        #res th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <table id="InputBar">
+        <tr>
+            <td>姓名缩写</td>
+            <td><input type="text" id="initial"></td>
+        </tr>
+        <tr>
+            <td>姓名</td>
+            <td><input type="text" id="name"></td>
+        </tr>
+        <tr>
+            <td>性别</td>
+            <td>
+                <div>
+                    <input type="radio" name="gender" value="1">男
+                    <input type="radio" name="gender" value="-1">女
+                    <input type="radio" name="gender" value="0">其他
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>CCF 等级</td>
+            <td><input type="text" id="CCF_level"></td>
+        </tr>
+        <tr>
+            <td>初中入学年份（仅供参考）</td>
+            <td><input type="text" id="enroll_middle" class="Input"></td>
+        </tr>
+        <tr>
+            <td>获奖记录</td>
+            <td><textarea placeholder="一行一个获奖记录，用 JSON 数据格式填写。" id="records" style="height:200px;width: 300px;font-size: 20px;" class="Input"></textarea></td>
+        </tr>
+        <tr>
+            <td>
+                <div id="submit" onclick="submit();">点击查询</div>
+            </td>
+        </tr>
+    </table>
+    <table id="res">
+        <tr>
+            <th>OIerDB UID</th>
+            <th>姓名缩写</th>
+            <th>姓名</th>
+        </tr>
+        <tbody id="input_"></tbody>
+    </table>
+</body>
+
+</html>

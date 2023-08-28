@@ -1,0 +1,5 @@
+[28/Aug/2023 02:15:37] "GET /actuator/gateway/routes HTTP/1.1" 404 2488
+[28/Aug/2023 02:16:55] "GET / HTTP/1.1" 200 5508
+[28/Aug/2023 02:16:56] "GET / HTTP/1.1" 200 5508
+[28/Aug/2023 02:17:09] "GET /static/index.js HTTP/1.1" 200 3638
+[28/Aug/2023 02:17:24] "POST /parser_api/ HTTP/1.1" 200 65
